@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+	<meta charset="utf-8">
+	<title>RSS Detector - Options</title>
+	<link rel="stylesheet" href="styles/option.css">
+	<script src="scripts/options.js"></script>
+</head>
+<body>
+	<div id="wallpaper">
+		<div id="tool-container">
+			<div id="sidebar">
+				<div id="sidebar-icon"></div>
+				<h1>RSS Detector</h1>
+			</div>
+			<!-- sidebar -->
+			<div id="content">
+
+
+				<section>
+					<h3 class="section-header">Main</h3>
+					<div class="settings-row learn-more" title="Handy for custom builds of Smart RSS.">
+						<label class="web-content-select-label">
+							<span class="selectLabel">Smart RSS ID:</span>
+							<input type="text" id="smartID" />
+						</label>
+					</div>
+
+					<div class="settings-row learn-more" title="The RSS source will be added immidiately after you click on it in the popup.">
+						<label class="web-content-select-label">
+							<span class="selectLabel">Disable previews:</span>
+							<input type="checkbox" id="disablePreviews" />
+						</label>
+					</div>
+
+					<div class="settings-row learn-more" title="Normal = DD.MM.YYYY, ISO = YYYY-MM-DD, US = MM/DD/YYYY">
+						<label class="web-content-select-label">
+							<span class="selectLabel">Date format:</span>
+							<select id="dateType">
+								<option value="normal">Normal</option>
+								<option value="iso">ISO</option>
+								<option value="us">US</option>
+							</select>
+						</label>
+					</div>
+
+					<div class="settings-row learn-more" title="Time format">
+						<label class="web-content-select-label">
+							<span class="selectLabel">Time format:</span>
+							<select id="hoursFormat">
+								<option value="24h">24h</option>
+								<option value="12h">12h (AM/PM)</option>
+							</select>
+						</label>
+					</div>
+
+					<div class="settings-row learn-more" title="Readers">
+							<span class="selectLabel">Readers:</span>
+                          <table>
+                            <thead>
+                              <tr>
+                                <th class="sort" data-sort="name">Name</th>
+                                <th class="sort" data-sort="url">URL</th>
+                                <th colspan="2">
+                                  <!--input type="text" class="search" placeholder="Search" /-->
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody class="list">
+                              <tr>
+                                <td class="id" style="display:none;">1</td>
+                                <td class="name">Feedly</td>
+                                <td class="url">http://cloud.feedly.com/#subscription/feed/%s</td>
+                                <td class="edit"><button class="edit-item-btn">Edit</button></td>
+                                <td class="remove"><button class="remove-item-btn">Remove</button></td>
+                              </tr>
+                              <tr>
+                                <td class="id" style="display:none;">2</td>
+                                <td class="name">The old reader</td>
+                                <td class="url">http://theoldreader.com/feeds/subscribe?url=%s</td>
+                                <td class="edit"><button class="edit-item-btn">Edit</button></td>
+                                <td class="remove"><button class="remove-item-btn">Remove</button></td>
+                              </tr>
+                              <tr>
+                                <td class="id" style="display:none;">3</td>
+                                <td class="name">Inoreader</td>
+                                <td class="url">http://www.inoreader.com/?add_feed=%s</td>
+                                <td class="edit"><button class="edit-item-btn">Edit</button></td>
+                                <td class="remove"><button class="remove-item-btn">Remove</button></td>
+                              </tr>
+                            </tbody>
+                          </table>
+                          <table>
+                            <td class="name">
+                              <input type="hidden" id="id-field" />
+                              <input type="text" id="name-field" placeholder="Name" />
+                            </td>
+                            <td class="age">
+                              <input type="text" id="url-field" placeholder="URL" />
+                            </td>
+                            <td class="add">
+                              <button id="add-btn">Add</button>
+                              <button id="edit-btn">Edit</button>
+                            </td>
+                          </table>
+					</div>
+				</section>
+
+
+				<section>
+					<h3 class="section-header">Bug reports and feedback</h3>
+					<p>If you found some bug or have some nice suggestion or you want to follow up on development, head over to following link :</p>
+					<a href="http://blog.martinkadlec.eu/post/501-smart-rss-final-v10">Martin Kadlec (BS-Harou)</a> Blog.
+				</section>
+			</div>
+			<!-- content -->
+		</div>
+		<!-- tool-container -->
+	</div>
+	<!-- wallpaper -->
+</body>
+</html>

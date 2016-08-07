@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+	<meta charset="utf-8">
+	<title></title>
+	<link rel="stylesheet" type="text/css" href="modules/preview.css">
+
+	<script src="modules/preview.js"></script>
+</head>
+<body>
+	<h1></h1>
+	<div id="subscribe">
+		<select>
+			<option value="smart">Smart RSS</option>
+			<option value="feedly">Feedly</option>
+			<option value="theoldreader">The Old Reader</option>
+			<option value="inoreader">Ino Reader</option>
+			<option value="tinyrss">Tiny Tiny RSS Reader</option>
+		</select>
+		<button id="subscribe-button">Subscribe</button>
+	</div>
+
+	<div id="list"></div>
+
+	<script type="template" id="template-preview">
+		<h2 class="title">
+			<a href="{{url}}">{{title}}</a>
+		</h2>
+		<div class="date">{{date}}</div>
+		<div class="author">{{author}}</div>
+		<div class="content">{{content}}</div>
+	</script>
+</body>
+</html>
