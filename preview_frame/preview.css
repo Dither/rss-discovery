@@ -8,6 +8,12 @@ body {
 	margin: 0;
 }
 
+img {
+	display:block;
+	max-width:17rem;
+	max-height:20rem;
+}
+
 #list {
 	display: -webkit-flex;
 	display: flex;
@@ -39,7 +45,6 @@ h1::before {
 	line-height: 1.5rem;
 	margin-right: 0.2rem;
 	overflow: hidden;
-	vertical-align: middle;
 }
 
 .title {
@@ -93,8 +98,11 @@ h1::before {
 #subscribe button {
 	padding: 0.35rem 2rem;
 	cursor: pointer;
+	height: 1.9rem;
 }
 
 #subscribe select {
+	height: 1.9rem;
 	padding: 0.1rem 0.3rem;
+	min-width: 14rem;
 }

@@ -9,13 +9,13 @@
 		"run_at": "document_start",
 		"js": ["includes/rss_discovery.js"]
 	}],
-	"description": "RSS feed discovery icon for Smart RSS extension.",
+	"description": "RSS feeds discovery icon for Smart RSS extension.",
 	"manifest_version": 2,
-	"version": "2.0",
+	"version": "2.1",
 	"background": {
 		"page": "index.html"
 	},
-	"web_accessible_resources": ["modules/*", "rss.html"],
+	"web_accessible_resources": ["preview_frame/*", "preview_frame.html"],
 	"permissions": ["https://*/*", "http://*/*", "chrome://favicon/*", "storage", "webRequest", "webRequestBlocking", "tabs",  "<all_urls>"],
 	"content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'unsafe-eval';",
 	"page_action": {
@@ -27,6 +27,6 @@
 		"48": "images/icon48.png",
 		"64": "images/icon64.png",
 		"96": "images/icon96.png",
-		"128": "images/icon128.png" 
+		"128": "images/icon128.png"
 	}
 }

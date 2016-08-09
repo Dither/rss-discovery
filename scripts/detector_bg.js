@@ -1,14 +1,28 @@
+/* jshint -W084, -W088 */
 if (typeof browser === 'undefined') browser = chrome;
 
+var resp, respURL, title, isPlain = false, defaultID = 'nncgmpcdlilgbepbfpeidpjlcdfhmcfp';
 browser.runtime.onMessage.addListener(function(request, sender, sendResponse){
-	if (request.action == 'show-rss-icon') {
+	//console.log(request.action);
+	if (request.action == 'show-rss-icon') { // message from tab with HTML
 		var tab = sender.tab;
 		browser.pageAction.setIcon({path: 'images/icon16_v2.png', tabId: tab.id});
 		browser.pageAction.show(tab.id);
-	} else if (request.action == 'get-xml-content') {
+	} else if (request.action == 'get-xml-content') { // message from RSS-preview iframe
 		sendResponse({ action: 'xml-content', value: resp, respURL: respURL, settings: settings._data, title: title });
 	}
 });
+
+function setPlainText(value) {
+	isPlain = !!value;
+}
+
+function sendRequestToSmartRSS(url) {
+	browser.storage.local.get('smartID', function(data) {
+		// message to Smart RSS
+		browser.runtime.sendMessage(data.smartID || defaultID, { action: 'new-rss', value: url});
+	});
+}
 
 /**
  * Settings
@@ -32,7 +46,11 @@ browser.storage.local.get({
 	'disablePreviews': false,
 	'hoursFormat': '24h',
 	'dateType': 'normal',
-    'otherReaders': '{}'
+	'readerList': {
+		feedly: {url: "http://cloud.feedly.com/#subscription/feed/", text:"Feedly"},
+		theoldreader: {url: "http://theoldreader.com/feeds/subscribe?url=", text:"The Old Reader"},
+		inoreader: {url: "http://www.inoreader.com/?add_feed=", text:"Ino Reader"},
+	}
 }, function(data) {
 	for (i in data) {
 		settings.set(i, data[i]);
@@ -43,9 +61,9 @@ browser.storage.local.get({
  * RSS Preiews
  */
 function getContentType(arr) {
-	for (var i=0; i<arr.length; i++) {
+	for (var i=0; i < arr.length; i++) {
 		if (arr[i].name.toLowerCase() == 'content-type') {
-			var arr = arr[i].value.split(';');
+			arr = arr[i].value.split(';');
 			return {
 				mime: arr[0],
 				charset: (arr.length > 1 ? arr[1] : null)
@@ -68,116 +86,132 @@ browser.webRequest.onHeadersReceived.addListener(handleHeaders,
 );
 
 function handleHeaders(details) {
-    if (settings.get('disablePreviews')) return;
+	if (settings.get('disablePreviews')) return;
 
+	setPlainText(false);
 	var contentType = getContentType(details.responseHeaders);
 	if (~rssMimes.indexOf(contentType.mime)) {
+		setPlainText(true);
 		loadRSS({ id: details.tabId, url: details.url });
-
 	} else if (~xmlMimes.indexOf(contentType.mime) && urlParts.test(details.url)) {
+		setPlainText(true);
 		loadRSS({ id: details.tabId, url: details.url });
-
-        details.responseHeaders.push({
-            name: 'Content-Type',
-            value: 'application/rss+xml' + (contentType.charset ? '; ' + contentType.charset : '')
-        });
-
+		details.responseHeaders.push({ name: 'Content-Type', value: 'application/rss+xml' + (contentType.charset ? '; ' + contentType.charset : '') });
 		return { responseHeaders: details.responseHeaders };
 	}
 }
 
 function loadRSS(tab) {
-	var retries = 0, xhr = new XMLHttpRequest();
-	respURL = tab.url;
-	xhr.open('get', respURL, true);
-	xhr.responseType = 'text';
-	var onStateChange = function () {
-        if(xhr.readyState === XMLHttpRequest.DONE) {
-        	if (xhr.status === 200) handleRSSLoaded(tab, xhr.response);
-            else if (xhr.status > 500 && ++retries < 3) setTimeout(function(){
-            	xhr.open('get', respURL, true);
-            	xhr.send();
-            }, 1000);
-        }
-    };
-    xhr.onreadystatechange = onStateChange;
-	xhr.send();
+	if (settings.get('disablePreviews')) return;
 
+	respURL = tab.url;
+
+	if (isPlain) {
+		injection(tab);
+	} else {
+		var xhr = new XMLHttpRequest();
+		xhr.open('get', respURL, true);
+		xhr.responseType = 'text';
+		//xhr.overrideMimeType('text/plain; charset=utf-8);
+		var onstatechange = function () {
+			if(xhr.readyState === XMLHttpRequest.DONE) {
+				if (xhr.status === 200)
+					handleRSSLoaded(tab, xhr.response, xhr.getResponseHeader('content-type').match(/charset=([^;]+)/gi));
+			}
+		};
+		xhr.onreadystatechange = onstatechange;
+		xhr.send();
+	}
 }
 
-var resp, respURL, title;
 function handleRSSLoaded(tab, response) {
+	if (settings.get('disablePreviews')) return;
+
 	var parser = new DOMParser(),
 		xmlDoc = parser.parseFromString(response, 'application/xml'),
 		data = parseRSS(xmlDoc);
 
 	if (data && data.length > 10) {
 		resp = data;
-		injection(tab, 1);
+		browser.tabs.sendMessage(tab.id, { action: 'show-preview-frame' });
 	}
 }
 
 function injection(tab, i) {
+	var to = null;
+
 	i = Number(i) || 1;
-
 	if (i < 10) {
-		var to = setTimeout(function() {
+		to = setTimeout(function() {
+			browser.tabs.sendMessage(tab.id,  { action: 'get-xml-content' }, function(response) {
+				if (response && response.value) {
+					clearTimeout(to);
+					handleRSSLoaded(tab, response.value, response.charset || ''); // message from tab with plain RSS feed text
+				}
+			});
 			injection(tab, ++i);
-		}, 300);
+		}, 500);
 	}
-
-	browser.tabs.executeScript(tab.id, { file: '/modules/create_iframe.js' }, function() {
-		clearTimeout(to);
-	});
 }
+
 
 /**
  * RSS Parser ... I should make it modular as I use it in both extensions
  */
 function parseRSS(xml) {
- 	var items = [];
+	var items = [];
 
- 	var nodes = xml.querySelectorAll('item');
- 	if (!nodes.length) nodes = xml.querySelectorAll('entry');
- 	title = getFeedTitle(xml);
+	var nodes = xml.querySelectorAll('item');
+	if (!nodes.length) nodes = xml.querySelectorAll('entry');
+	title = getFeedTitle(xml);
 
- 	var dateFormats = { normal: 'DD.MM.YYYY', iso: 'YYYY-MM-DD', us: 'MM/DD/YYYY' };
-
-
- 	[].forEach.call(nodes, function(node) {
- 		items.push({
- 			title: rssGetTitle(node),
- 			url: rssGetLink(node),
- 			date: rssGetDate(node),
- 			author: rssGetAuthor(node, title),
- 			content: rssGetContent(node),
- 		});
-
- 		var last = items[items.length - 1];
- 		if (last.date == '0') last.date = Date.now();
- 		last.content = removeHtml(last.content);
- 		last.author = removeHtml(last.author);
- 		last.title = removeHtml(last.title);
-
- 		var pickedFormat = dateFormats[settings.get('dateType')] || dateFormats['normal'];
- 		var timeFormat = settings.get('hoursFormat') == '12h' ? 'H:mm a' : 'hh:mm';
- 		last.date = formatDate(last.date, pickedFormat + ' ' + timeFormat);
- 	});
+	var dateFormats = { normal: 'DD.MM.YYYY', iso: 'YYYY-MM-DD', us: 'MM/DD/YYYY' };
 
 
- 	items.push({ empty: true });
- 	items.push({ empty: true });
- 	items.push({ empty: true });
- 	items.push({ empty: true });
- 	items.push({ empty: true });
- 	items.push({ empty: true });
+	[].forEach.call(nodes, function(node) {
+		items.push({
+			title: rssGetTitle(node),
+			url: rssGetLink(node),
+			date: rssGetDate(node),
+			author: rssGetAuthor(node, title),
+			content: rssGetContent(node),
+		});
 
- 	return items;
+		var last = items[items.length - 1];
+		if (last.date == '0') last.date = Date.now();
+		last.content = removeHtml(last.content);
+		last.author = removeAllHtml(last.author);
+		last.title = removeAllHtml(last.title);
+
+		var pickedFormat = dateFormats[settings.get('dateType')] || dateFormats.normal;
+		var timeFormat = settings.get('hoursFormat') == '12h' ? 'H:mm a' : 'hh:mm';
+		last.date = formatDate(last.date, pickedFormat + ' ' + timeFormat);
+	});
+
+
+	items.push({ empty: true });
+	items.push({ empty: true });
+	items.push({ empty: true });
+	items.push({ empty: true });
+	items.push({ empty: true });
+	items.push({ empty: true });
+
+	return items;
 }
 
+function removeAllHtml(str) {
+	return str.replace(/</gmi, '<!--').replace(/>/gmi, '--> ');
+
+}
 
 function removeHtml(str) {
-	return str.replace(/</gmi, '<!--').replace(/>/gmi, '--> ');
+	str = str.replace(/[\r\n]+/gmi, '');
+	str = str.replace(/<(\/)?(b|i|strong|sub|sup)>/gmi, '===*$1*=*$2*===');
+	str = str.replace(/<img[^<>]+src=["']([^<>"']+)["'][^<>]*>/i, '===***===*$1*===')
+	str = removeAllHtml(str);
+	str = str.replace(/===\*\*\*===\*([^<>"']+)\*===/gmi, '<img src="$1" />');
+	str = str.replace(/===\*(\/?)\*=\*(b|i|strong|sub|sup)\*===/gmi, '<$1$2>');
+	return str;
 }
 
 function rssGetLink(node) {
@@ -194,7 +228,7 @@ function rssGetLink(node) {
 function getFeedTitle(xml) {
 	var title = xml.querySelector('channel > title, feed > title, rss > title');
 	if (!title || !(title.textContent).trim())
-        title = xml.querySelector('channel > description, feed > description, rss > description');
+		title = xml.querySelector('channel > description, feed > description, rss > description');
 
 	if (!title || !(title.textContent).trim())
 		title = xml.querySelector('channel > description, feed > description, rss > description');
@@ -236,9 +270,9 @@ function rssGetAuthor(node, title) {
 	var creator = node.querySelector('creator, author > name');
 	if (creator) creator = creator.textContent.trim();
 	else {
-       if (creator = node.querySelector('author')) creator = creator.textContent.trim();
+	   if (creator = node.querySelector('author')) creator = creator.textContent.trim();
 	   else if (title && title.length > 1) creator = title.trim();
-    }
+	}
 
 	if (creator && creator.length) {
 		if (/^\S+@\S+\.\S+\s+\(.+\)$/.test(creator)) creator = creator.replace(/^\S+@\S+\.\S+\s+\((.+)\)$/, '$1');
