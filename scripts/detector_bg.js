@@ -60,8 +60,8 @@ var xmlMimes = ['text/xml', 'application/xml'];
 var urlParts = /(new|feed|rss)/i;
 
 browser.webRequest.onHeadersReceived.addListener(handleHeaders,
-	{ 
-		urls: ['https://*/*', 'http://*/*'], 
+	{
+		urls: ['https://*/*', 'http://*/*'],
 		types: ['main_frame']
 	},
 	['responseHeaders', 'blocking']
@@ -87,21 +87,31 @@ function handleHeaders(details) {
 }
 
 function loadRSS(tab) {
-	var xhr = new XMLHttpRequest();
+	var retries = 0, xhr = new XMLHttpRequest();
 	respURL = tab.url;
-	xhr.open('get', tab.url, true);
+	xhr.open('get', respURL, true);
 	xhr.responseType = 'text';
-	xhr.onload = handleRSSLoaded.bind(xhr, tab);
+	var onStateChange = function () {
+        if(xhr.readyState === XMLHttpRequest.DONE) {
+        	if (xhr.status === 200) handleRSSLoaded(tab, xhr.response);
+            else if (xhr.status > 500 && ++retries < 3) setTimeout(function(){
+            	xhr.open('get', respURL, true);
+            	xhr.send();
+            }, 1000);
+        }
+    };
+    xhr.onreadystatechange = onStateChange;
 	xhr.send();
+
 }
 
 var resp, respURL, title;
-function handleRSSLoaded(tab) {
-	var parser = new DOMParser();
-	var xmlDoc = parser.parseFromString(this.response, 'application/xml');    
-	var data = parseRSS(xmlDoc);
+function handleRSSLoaded(tab, response) {
+	var parser = new DOMParser(),
+		xmlDoc = parser.parseFromString(response, 'application/xml'),
+		data = parseRSS(xmlDoc);
 
-	if (data && data.length > 6) {
+	if (data && data.length > 10) {
 		resp = data;
 		injection(tab, 1);
 	}
@@ -109,7 +119,7 @@ function handleRSSLoaded(tab) {
 
 function injection(tab, i) {
 	i = Number(i) || 1;
-	
+
 	if (i < 10) {
 		var to = setTimeout(function() {
 			injection(tab, ++i);
@@ -154,7 +164,7 @@ function parseRSS(xml) {
  		last.date = formatDate(last.date, pickedFormat + ' ' + timeFormat);
  	});
 
- 	
+
  	items.push({ empty: true });
  	items.push({ empty: true });
  	items.push({ empty: true });
@@ -183,7 +193,7 @@ function rssGetLink(node) {
 
 function getFeedTitle(xml) {
 	var title = xml.querySelector('channel > title, feed > title, rss > title');
-	if (!title || !(title.textContent).trim()) 
+	if (!title || !(title.textContent).trim())
         title = xml.querySelector('channel > description, feed > description, rss > description');
 
 	if (!title || !(title.textContent).trim())
