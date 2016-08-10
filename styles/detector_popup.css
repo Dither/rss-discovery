@@ -8,6 +8,8 @@ body {
 	padding: 5px;
 	max-width: 300px;
 	min-width: 80px;
+	width: 300px;
+	min-height: 70px;
 	font-size: 100%;
 	background: linear-gradient(to bottom, #fbfbfb, #eee);
 	font-family: sans-serif;
@@ -46,7 +48,7 @@ h1 {
 	/*border-radius: 5px;
 	margin-top: 5px;
 	border: 1px solid #c6c6c6;
-	
+
 	*/
 	border-bottom: 1px solid #ddd;
 }
@@ -60,4 +62,4 @@ h1 {
 .button:last-of-type {
 	border: none;
 }
-	
+

@@ -1,4 +1,4 @@
-* {
+#subscribe button* {
 	box-sizing: border-box;
 	font-family: sans-serif;
 }
@@ -14,12 +14,9 @@ img {
 	max-height:20rem;
 }
 
-#list {
-	display: -webkit-flex;
+#list {;
 	display: flex;
-	-webkit-flex-flow: row wrap;
 	flex-flow: row wrap;
-	-webkit-justify-content: center;
 	justify-content: center;
 }
 
@@ -98,7 +95,7 @@ h1::before {
 #subscribe button {
 	padding: 0.35rem 2rem;
 	cursor: pointer;
-	height: 1.9rem;
+	height: auto/*1.9rem*/;
 }
 
 #subscribe select {

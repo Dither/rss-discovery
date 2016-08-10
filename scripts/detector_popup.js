@@ -1,4 +1,4 @@
-if (typeof browser === 'undefined') browser = chrome;
+if (typeof browser === 'undefined' && typeof chrome !== 'undefined') browser = chrome;
 
 var tab = null, gotList = false, d = document, bgPage, disablePreviews = false;
 

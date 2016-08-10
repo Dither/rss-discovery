@@ -1,6 +1,6 @@
 // DOMContentLoaded
 if (document instanceof HTMLDocument) {
-    if (typeof browser === 'undefined') browser = chrome;
+    if (typeof browser === 'undefined' && typeof chrome !== 'undefined') browser = chrome;
 
     var rssData = [], noPreview = sessionStorage.getItem('no-preview') || 'off',
         interval = setInterval(function() {

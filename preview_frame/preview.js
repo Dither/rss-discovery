@@ -1,6 +1,6 @@
 var xmldata, fragment, settings, list, subscribe, title, template, current_rss, select, list;
 
-if (typeof browser === 'undefined') browser = chrome;
+if (typeof browser === 'undefined' && typeof chrome !== 'undefined') browser = chrome;
 
 document.addEventListener('DOMContentLoaded', init);
 
@@ -28,12 +28,13 @@ function init() {
 }
 
 function handleButtonClick() {
-	if (select !== 'smartrss') window.open(select[select.selectedIndex].action + encodeURIComponent(current_rss));
+	if (select.value !== 'smartrss') window.open(select[select.selectedIndex].action + encodeURIComponent(current_rss));
+	else if (typeof InstallTrigger !== 'undefined') window.open(current_rss)
 	else browser.runtime.sendMessage(settings.smartID, { action: 'new-rss', value: current_rss });
 }
 
 function handleMessage(request, sender, sendResponse) {
-	console.log(request.action);
+	//console.log(request.action);
 	if (request.action === 'xml-content') {
 
 		xmldata = request.value;

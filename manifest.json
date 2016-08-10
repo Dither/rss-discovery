@@ -16,17 +16,24 @@
 		"page": "index.html"
 	},
 	"web_accessible_resources": ["preview_frame/*", "preview_frame.html"],
-	"permissions": ["https://*/*", "http://*/*", "chrome://favicon/*", "storage", "webRequest", "webRequestBlocking", "tabs",  "<all_urls>"],
+	"permissions": ["https://*/*", "http://*/*", "storage", "webRequest", "webRequestBlocking", "tabs",  "<all_urls>"],
 	"content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'unsafe-eval';",
 	"page_action": {
 		"default_title": "RSS discovery",
 		"default_popup": "popup.html"
 	},
-	"options_page": "options.html",
+	"options_ui": {
+		"page": "options.html"
+	},
 	"icons": {
 		"48": "images/icon48.png",
 		"64": "images/icon64.png",
 		"96": "images/icon96.png",
 		"128": "images/icon128.png"
+	},
+	"applications": {
+		"gecko": {
+			"id": "rss-discovery@mozilla.firefox"
+		}
 	}
 }

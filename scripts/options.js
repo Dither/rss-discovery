@@ -1,7 +1,7 @@
-if (typeof browser === 'undefined') browser = chrome;
+if (typeof browser === 'undefined' && typeof chrome !== 'undefined') browser = chrome;
 
 function start(fn) {
-	document.body ? fn() : document.addEventListener('DOMContentLoaded', fn);
+	query('#edit-btn') ? fn() : document.addEventListener('DOMContentLoaded', fn);
 }
 
 function find(q) {
@@ -14,15 +14,25 @@ function query(q, e) {
 }
 
 browser.runtime.getBackgroundPage(function(bg) {
+	var onchecked = function(e) {
+		var t = e.target;
+		bg.settings.save(t.id, t.checked);
+	}
+
 	var onchange = function(e) {
 		var t = e.target;
-		bg.settings.save(t.id, t.checked || t.value);
+		bg.settings.save(t.id, t.value);
 	}
 
 	start(function() {
-		find('select[id]:not(.readers), input[type=text]:not(.readers),input[type=checkbox]:not(.readers)').forEach(function(item) {
+		find('select[id]:not(.readers), input[type=text]:not(.readers)').forEach(function(item) {
 			item.value = bg.settings.get(item.id);
 			item.addEventListener('change', onchange);
+		});
+
+		find('input[type=checkbox]:not(.readers)').forEach(function(item) {
+			item.checked = bg.settings.get(item.id);
+			item.addEventListener('change', onchecked);
 		});
 
 		var readerList = query('#reader-list');

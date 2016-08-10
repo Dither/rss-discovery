@@ -1,5 +1,5 @@
 /* jshint -W084, -W088 */
-if (typeof browser === 'undefined') browser = chrome;
+if (typeof browser === 'undefined' && typeof chrome !== 'undefined') browser = chrome;
 
 var resp, respURL, title, isPlain = false, defaultID = 'nncgmpcdlilgbepbfpeidpjlcdfhmcfp';
 browser.runtime.onMessage.addListener(function(request, sender, sendResponse){
@@ -62,6 +62,7 @@ browser.storage.local.get({
  */
 function getContentType(arr) {
 	for (var i=0; i < arr.length; i++) {
+		//console.log('[detector]'+arr[i].name);
 		if (arr[i].name.toLowerCase() == 'content-type') {
 			arr = arr[i].value.split(';');
 			return {
@@ -114,9 +115,8 @@ function loadRSS(tab) {
 		xhr.responseType = 'text';
 		//xhr.overrideMimeType('text/plain; charset=utf-8);
 		var onstatechange = function () {
-			if(xhr.readyState === XMLHttpRequest.DONE) {
-				if (xhr.status === 200)
-					handleRSSLoaded(tab, xhr.response, xhr.getResponseHeader('content-type').match(/charset=([^;]+)/gi));
+			if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+				handleRSSLoaded(tab, xhr.response, xhr.getResponseHeader('content-type').match(/charset=([^;]+)/gi));
 			}
 		};
 		xhr.onreadystatechange = onstatechange;
