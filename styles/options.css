@@ -2,10 +2,12 @@ html,
 body {
     /*background-color: rgb(237, 237, 237);*/
     font: menu;
-    height: 500px;
-    width:  800px;
+    min-height: 450px;
+    min-width:  600px;
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
+    padding: 0 30px;
 }
 
 span.selectLabel {
@@ -40,7 +42,6 @@ th {
     text-align: left;
 }
 
-#wallpaper-canvas,
 #scroll-container {
     height: 100%;
     left: 0;
@@ -59,84 +60,8 @@ _:-moz-tree-row(hover), #content {
 	padding: 5px 20px;
 }
 
-@supports (-webkit-appearance:none) {
-
-#wallpaper {
-    background-image: none;
-    background-size: cover;
-    height: 100%;
-    left: 0;
-    overflow: auto;
-    position: absolute;
-    top: 0;
-    width: 100%;
-}
-
-#tool-container {
-    bottom: 0;
-    left: 0;
-    margin: 0 auto;
-    min-width: 700px;
-    max-width: 1000px;
-    /*padding: 0 20px;*/
-    position: absolute;
-    right: 0;
-    top: 0;
-}
-
-#sidebar {
-    background-color: rgba(255, 255, 255, 0.8);
-    background-origin: content-box;
-    background-repeat: no-repeat;
-    border-radius: 12px 0 0 12px;
-    border: 1px solid rgb(198, 198, 198);
-    box-sizing: border-box;
-    color: rgb(73, 73, 73);
-    margin-top: 30px;
-    padding: 20px;
-    position: fixed;
-    width: 230px;
-    -webkit-border-end: none;
-}
-
-/* Sidebar icon must be given a background image */
-
-#sidebar-icon {
-    display: block;
-    width: 52px;
-    height: 48px;
-    background-repeat: no-repeat;
-    background-image: url('../images/icon48.png');
-}
-
-#sidebar h1 {
-    font-size: 18px;
-}
-
-}
-
-html[dir='rtl'] #sidebar {
-    border-radius: 0 12px 12px 0;
-}
-
-#content {
-    background: white;
-    /*border-left: 1px solid rgba(0, 0, 0, 0.25);
-    border-right: 1px solid rgba(0, 0, 0, 0.25);*/
-    box-sizing: border-box;
-    min-height: 100%;
-    padding: 30px;
-    /* #sidebar width */
-}
-
 a {
     color: rgb(17, 85, 204);
-}
-
-@media all and (max-width: 740px), all and (max-height: 500px) {
-    #sidebar {
-        position: absolute;
-    }
 }
 
 .section-header {
@@ -155,6 +80,7 @@ a {
     background-size: 100% 1px;
     content: '';
     flex: auto;
+    margin-left: 5px;
 }
 
 section div {
@@ -190,6 +116,10 @@ input[type=text] {
 
 input[type=text] {
     min-width: 250px;
+}
+
+#smartID {
+    min-width: 470px;
 }
 
 .twitter {
