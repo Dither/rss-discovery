@@ -39,9 +39,8 @@ if (document instanceof HTMLDocument) {
     var init_frame = function() {
         window.stop();
         var html = document.getElementsByTagName('html')[0];
-        while (html && html.attributes && html.attributes.length > 0) { // measure against on.. attributes
-            html.removeAttributeNode(html.attributes[0]);
-        }
+        while (html && html.attributes && html.attributes.length > 0)
+            html.removeAttribute(html.attributes[0].name);
         document.documentElement.innerHTML = '<html><head><style>body>*{display: none;}</style></head><body></body></html>';
         document.documentElement.style.cssText = 'width: 100%; height: 100%; margin: 0;';
         document.body.style.cssText = 'margin: 0; width: 100%; height: 100%;';

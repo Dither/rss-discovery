@@ -1,8 +1,7 @@
 {
 	"name": "RSS Discovery",
 	"developer": {
-		"name": "BS-Harou (Martin Kadlec)",
-		"url": "http://blog.martinkadlec.eu"
+		"name": "Martin Kadlec, DitherSky"
 	},
 	"content_scripts": [{
 		"matches": ["*://*/*"],

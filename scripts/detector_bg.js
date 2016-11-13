@@ -6,10 +6,12 @@ browser.runtime.onMessage.addListener(function(request, sender, sendResponse){
 	//console.log(request.action);
 	if (request.action == 'show-rss-icon') { // message from tab with HTML
 		var tab = sender.tab;
-		browser.pageAction.setIcon({path: 'images/icon16_v2.png', tabId: tab.id});
+		browser.pageAction.setIcon({path: 'images/icon19.png', tabId: tab.id});
 		browser.pageAction.show(tab.id);
-	} else if (request.action == 'get-xml-content') { // message from RSS-preview iframe
+	} else if (request.action == 'get-xml-content') { // XML request from RSS-preview iframe
 		sendResponse({ action: 'xml-content', value: resp, respURL: respURL, settings: settings._data, title: title });
+	} else if (request.action == 'get-reader-list') { // Reader list request from RSS-preview iframe
+		sendResponse({ action: 'reader-list', readerList: settings.get('readerList') });
 	}
 });
 
@@ -154,10 +156,6 @@ function injection(tab, i) {
 	}
 }
 
-
-/**
- * RSS Parser ... I should make it modular as I use it in both extensions
- */
 function parseRSS(xml) {
 	var items = [];
 

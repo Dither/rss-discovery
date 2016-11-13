@@ -11,20 +11,8 @@ function init() {
 	select = document.querySelector('#subscribe select');
 	subscribe.addEventListener('click', handleButtonClick);
 
-	browser.storage.local.get('readerList', function(data) {
-		data = data.readerList;
-		var i = null, option;
-		for (i in data) {
-			if (data.hasOwnProperty(i)) {
-				option = document.createElement('option');
-				option.value = i;
-				option.action =  data[i].url;
-				option.textContent = data[i].text;
-				select.appendChild(option);
-			}
-		}
-		browser.runtime.sendMessage({ action: 'get-xml-content' }, handleMessage);
-	});
+	browser.runtime.sendMessage({ action: 'get-reader-list' }, handleMessage);
+	browser.runtime.sendMessage({ action: 'get-xml-content' }, handleMessage);
 }
 
 function handleButtonClick() {
@@ -36,13 +24,22 @@ function handleButtonClick() {
 function handleMessage(request, sender, sendResponse) {
 	//console.log(request.action);
 	if (request.action === 'xml-content') {
-
 		xmldata = request.value;
 		current_rss = request.respURL;
 		settings = request.settings;
 		title = request.title;
-
 		showRSS();
+	} else if (request.action === 'reader-list') {
+		var data = request.readerList, i = null, option;
+		for (i in data) {
+			if (data.hasOwnProperty(i)) {
+				option = document.createElement('option');
+				option.value = i;
+				option.action =  data[i].url;
+				option.textContent = data[i].text;
+				select.appendChild(option);
+			}
+		}
 	}
 }
 
